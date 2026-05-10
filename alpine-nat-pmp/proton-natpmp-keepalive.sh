@@ -88,7 +88,8 @@ while true; do
 			echo "Forwarded port (TCP): $mappedTcpPort"
 		fi
 	fi
-	# loop complete; delay next iteration by 10 or 45 seconds
+	#### loop complete
+	# delay next iteration by 10 or 45 seconds
 	echo "Waiting $scriptWaitTime seconds before next port forward request..."
 	echo "$outputDivider"
 	sleep $scriptWaitTime
