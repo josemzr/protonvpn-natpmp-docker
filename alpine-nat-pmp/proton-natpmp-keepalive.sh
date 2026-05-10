@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# based on Proton's support article here:
-# https://protonvpn.com/support/port-forwarding-manual-setup#linux
+
+#### Author
+# github.com/blomstertj
+#### Description
+# natpmpc port forward map request loop
+# based on Proton's support article here: https://protonvpn.com/support/port-forwarding-manual-setup#linux
+
 
 # the PMP gateway for ProtonVPN from the article
 protonGwIp='10.2.0.1'
@@ -12,13 +17,15 @@ readNatPmpRespSuccessRegex='readnatpmpresponseorretry returned [0-9]+ \((OK|SUCC
 # if port mapping is successful then the output will have the following format for UDP/TCP
 readNatPmpUdpPortMapRespRegex='Mapped public port [0-9]+ protocol UDP'
 readNatPmpTcpPortMapRespRegex='Mapped public port [0-9]+ protocol TCP'
+# divider for natpmpc output if errors
+cmdOutputDivider='================================================'
 # divider between loop iterations
-outputDivider='================================================================================================='
+outputDivider='================================================================================================'
 
 while true; do
 	echo "$outputDivider"
 	scriptWaitTime=45
-	# get public IP from curl
+	# get public IP from curl to Proton operated ip.me
 	# this should always match what natpmp returns
 	# should only be different if we're not connected to VPN
 	curlPublicIp=$(curl --silent ip.me)
@@ -40,9 +47,9 @@ while true; do
 	if [[ -z "$testNatPmpAllowed" ]]
 	then
 		echo 'NAT PMP test failed. Make sure your chosen server is P2P. Make sure this containers traffic is routed through the VPN tunnel. Command output:'
-		echo "$outputDivider"
+		echo "$cmdOutputDivider"
 		cat /tmp/natpmpc_allowed
-		echo "$outputDivider"
+		echo "$cmdOutputDivider"
 		scriptWaitTime=10
 	#### if allowed then request port fowarding for UDP/TCP for 60 second lifetime
 	else
@@ -54,9 +61,9 @@ while true; do
 		if [[ -z "$testUdpPortMap" ]]
 		then
 			echo 'UDP port mapping failed. Command output:'
-			echo "$outputDivider"
+			echo "$cmdOutputDivider"
 			cat /tmp/natpmpc_udp_output
-			echo "$outputDivider"
+			echo "$cmdOutputDivider"
 			scriptWaitTime=10
 		# if mapping was successful then display port
 		else
@@ -71,9 +78,9 @@ while true; do
 		if [[ -z "$testTcpPortMap" ]]
 		then
 			echo 'TCP port mapping failed. Command output:'
-			echo "$outputDivider"
+			echo "$cmdOutputDivider"
 			cat /tmp/natpmpc_tcp_output
-			echo "$outputDivider"
+			echo "$cmdOutputDivider"
 			scriptWaitTime=10
 		# if mapping was successful then display port
 		else
