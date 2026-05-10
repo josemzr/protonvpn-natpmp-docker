@@ -42,11 +42,11 @@ while true; do
 	natPmpPublicIp=$(grep "$readNatPmpRespPublicIpStr" /tmp/natpmpc_allowed | cut -d ':' -f 2 | xargs)
 	echo "Public IP (natpmp): $natPmpPublicIp"
 
-	#### if the server allows port forwarding then request ports
+	#### if the gateway allows port forwarding then request ports
 	# if not allowed or test error then warn user and reduce wait time
 	if [[ -z "$testNatPmpAllowed" ]]
 	then
-		echo 'NAT PMP test failed. Make sure your chosen server is P2P. Make sure this containers traffic is routed through the VPN tunnel. Command output:'
+		echo 'NAT PMP test failed. Make sure your chosen server is P2P enabled. Make sure this containers traffic is routed through the VPN tunnel. Command output:'
 		echo "$cmdOutputDivider"
 		cat /tmp/natpmpc_allowed
 		echo "$cmdOutputDivider"
