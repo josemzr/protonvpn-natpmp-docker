@@ -8,9 +8,8 @@ I connect to ProtonVPN using WireGuard with my router. This configuration does n
 I designed this to be a "microservice" of sorts so it
 
 - is lightweight (thanks Alpine)
-- relies on an external device/service to direct the traffic through VPN (1)
 - uses basic Linux tools (bash, curl, and libnatpmp)
-
+- relies on an external device/service to direct the traffic through VPN (1)
 
 (1)
 Routers and firewalls can send traffic from specific IP addresses and/or MAC addresses through the VPN. That's why it has no VPN connectivity itself.
