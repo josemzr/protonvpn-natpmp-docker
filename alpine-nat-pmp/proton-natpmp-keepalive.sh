@@ -25,13 +25,14 @@ outputDivider='=================================================================
 while true; do
 	echo "$outputDivider"
 	scriptWaitTime=45
-	# get public IP from curl to Proton operated ip.me
+	#### get public IP from curl to Proton operated ip.me
 	# this should always match what natpmp returns
 	# should only be different if we're not connected to VPN
 	curlPublicIp=$(curl --silent ip.me)
 	echo "Public IP (ip.me): $curlPublicIp"
 	echo "Target Gateway IP: $protonGwIp"
 
+	#### test if the gateway allows port forwarding
 	# this will take a long time if we're not connected to VPN
 	# or not on a P2P enabled server
 	echo 'Testing if the gateway allows port forwarding...'
