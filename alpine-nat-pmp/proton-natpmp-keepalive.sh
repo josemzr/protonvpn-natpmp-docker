@@ -69,6 +69,6 @@ while true; do
 		fi
 	fi
 	echo "Waiting $scriptWaitTime seconds before next port forward request..."
-	sleep $scriptWaitTime
 	echo "$outputDivider"
+	sleep $scriptWaitTime
 done
