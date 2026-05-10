@@ -15,8 +15,7 @@ readNatPmpRespPublicIpStr='Public IP'
 # if a NAT response returns a success then the output will have the following format
 readNatPmpRespSuccessRegex='readnatpmpresponseorretry returned [0-9]+ \((OK|SUCCESS)\)'
 # if port mapping is successful then the output will have the following format for UDP/TCP
-readNatPmpUdpPortMapRespRegex='Mapped public port [0-9]+ protocol UDP'
-readNatPmpTcpPortMapRespRegex='Mapped public port [0-9]+ protocol TCP'
+readNatPmpPortMapRespRegex='Mapped public port [0-9]+ protocol (UDP|TCP)'
 # divider for natpmpc output if errors
 cmdOutputDivider='================================================'
 # divider between loop iterations
@@ -68,7 +67,7 @@ while true; do
 			scriptWaitTime=10
 		# if mapping was successful then display port
 		else
-			mappedUdpPort=$(grep -E "$readNatPmpUdpPortMapRespRegex" /tmp/natpmpc_udp_output | awk '{print $4}')
+			mappedUdpPort=$(grep -E "$readNatPmpPortMapRespRegex" /tmp/natpmpc_udp_output | awk '{print $4}')
 			echo "Forwarded port (UDP): $mappedUdpPort"
 		fi
 		echo 'Sending TCP port forward request...'
@@ -85,7 +84,7 @@ while true; do
 			scriptWaitTime=10
 		# if mapping was successful then display port
 		else
-			mappedTcpPort=$(grep -E "$readNatPmpTcpPortMapRespRegex" /tmp/natpmpc_tcp_output | awk '{print $4}')
+			mappedTcpPort=$(grep -E "$readNatPmpPortMapRespRegex" /tmp/natpmpc_tcp_output | awk '{print $4}')
 			echo "Forwarded port (TCP): $mappedTcpPort"
 		fi
 	fi
