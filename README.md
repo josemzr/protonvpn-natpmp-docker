@@ -1,6 +1,6 @@
 Source code: https://github.com/blomstertj/protonvpn-natpmp-docker
 
-Runs the NATPMP from the ProtonVPN manual port forward guide in a nice script. This process is detailed in Proton's support article here: https://protonvpn.com/support/port-forwarding-manual-setup#linux
+Runs the NATPMP loop from the ProtonVPN manual port forward guide in a nice script. This process is detailed in Proton's support article here: https://protonvpn.com/support/port-forwarding-manual-setup#linux
 
 The purpose of the container is to spit out the port numbers to put in your other applications like a BitTorrent client. You don't need to run natpmpc on the same device, the ports will work for all devices that use the VPN.
 
