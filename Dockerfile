@@ -1,7 +1,7 @@
 # source image
-FROM alpine:latest
+FROM dhi.io/alpine-base:3.23-dev
 
-LABEL build_version="2026.05.09"
+LABEL build_version="2026.05.10"
 LABEL maintainer="blomstertj"
 
 # install bash, curl, and libnatpmp
@@ -13,8 +13,13 @@ RUN echo "**** cleanup ****" && \
     rm -rf /tmp/*
 
 # copy bash script to container / dir
-COPY alpine-nat-pmp/proton-natpmp-keepalive.sh /
+COPY proton-natpmp-keepalive.sh /
+
+RUN echo "**** set ownership and permissions ****" && \
+    chown nonroot:nonroot /proton-natpmp-keepalive.sh && \
+    chmod +x /proton-natpmp-keepalive.sh
 
 # create startup command
+USER nonroot
 ENTRYPOINT [ "/bin/bash" ]
 CMD [ "/proton-natpmp-keepalive.sh" ]

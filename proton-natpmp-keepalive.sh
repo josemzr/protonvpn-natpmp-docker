@@ -53,6 +53,7 @@ while true; do
 		scriptWaitTime=10
 	#### if allowed then request port fowarding for UDP/TCP for 60 second lifetime
 	else
+		#### UDP port forward request
 		echo 'Sending UDP port forward request...'
 		natpmpc -a 1 0 udp 60 -g "$protonGwIp" &> /tmp/natpmpc_udp_output
 		# grab the read response/retry lines
@@ -70,6 +71,7 @@ while true; do
 			mappedUdpPort=$(grep -E "$readNatPmpPortMapRespRegex" /tmp/natpmpc_udp_output | awk '{print $4}')
 			echo "Forwarded port (UDP): $mappedUdpPort"
 		fi
+		#### TCP port forward request
 		echo 'Sending TCP port forward request...'
 		natpmpc -a 1 0 tcp 60 -g "$protonGwIp" &> /tmp/natpmpc_tcp_output
 		# grab the read response/retry lines
