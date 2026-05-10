@@ -7,4 +7,3 @@ I connect to ProtonVPN using WireGuard with my router. This configuration does n
 The purpose of the container is to spit out the port numbers to put in your other applications like a BitTorrent client.
 
 This process is detailed in Proton's support article here: https://protonvpn.com/support/port-forwarding-manual-setup
-This container runs a bash script based on the reference support article in a loop.
