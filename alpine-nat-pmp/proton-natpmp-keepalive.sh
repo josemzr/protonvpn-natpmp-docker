@@ -3,11 +3,16 @@
 # based on Proton's support article here:
 # https://protonvpn.com/support/port-forwarding-manual-setup#linux
 
+# the PMP gateway for ProtonVPN from the article
 protonGwIp='10.2.0.1'
+# the key name for the public IP returned by natpmpc
 readNatPmpRespPublicIpStr='Public IP'
-natPmpRespSuccessRegex='readnatpmpresponseorretry returned [0-9]+ \((OK|SUCCESS)\)'
-natPmpTcpPortMapRespRegex='Mapped public port [0-9]+ protocol TCP'
-natPmpUdpPortMapRespRegex='Mapped public port [0-9]+ protocol UDP'
+# if a NAT response returns a success then the output will have the following format
+readNatPmpRespSuccessRegex='readnatpmpresponseorretry returned [0-9]+ \((OK|SUCCESS)\)'
+# if port mapping is successful then the output will have the following format for UDP/TCP
+readNatPmpUdpPortMapRespRegex='Mapped public port [0-9]+ protocol UDP'
+readNatPmpTcpPortMapRespRegex='Mapped public port [0-9]+ protocol TCP'
+# divider between loop iterations
 outputDivider='================================================================================================='
 
 while true; do
@@ -26,10 +31,12 @@ while true; do
 	# test if this server allows port forwarding
 	natpmpc -g "$protonGwIp" &> /tmp/natpmpc_allowed
 	# grab the read response/retry lines
-	testNatPmpAllowed=$(grep -E "$natPmpRespSuccessRegex" /tmp/natpmpc_allowed)
+	testNatPmpAllowed=$(grep -E "$readNatPmpRespSuccessRegex" /tmp/natpmpc_allowed)
 	natPmpPublicIp=$(grep "$readNatPmpRespPublicIpStr" /tmp/natpmpc_allowed | cut -d ':' -f 2 | xargs)
 	echo "Public IP (natpmp): $natPmpPublicIp"
 
+	#### if the server allows port forwarding then request ports
+	# if not allowed or test error then warn user and reduce wait time
 	if [[ -z "$testNatPmpAllowed" ]]
 	then
 		echo 'NAT PMP test failed. Make sure your chosen server is P2P. Make sure this containers traffic is routed through the VPN tunnel. Command output:'
@@ -37,11 +44,13 @@ while true; do
 		cat /tmp/natpmpc_allowed
 		echo "$outputDivider"
 		scriptWaitTime=10
+	#### if allowed then request port fowarding for UDP/TCP for 60 second lifetime
 	else
-		# request port forwarding for TCP and UDP for 60 seconds
 		echo 'Sending UDP port forward request...'
 		natpmpc -a 1 0 udp 60 -g "$protonGwIp" &> /tmp/natpmpc_udp_output
-		testUdpPortMap=$(grep -E "$natPmpRespSuccessRegex" /tmp/natpmpc_udp_output)
+		# grab the read response/retry lines
+		testUdpPortMap=$(grep -E "$readNatPmpRespSuccessRegex" /tmp/natpmpc_udp_output)
+		# if test failed then warn user and reduce wait time
 		if [[ -z "$testUdpPortMap" ]]
 		then
 			echo 'UDP port mapping failed. Command output:'
@@ -49,13 +58,16 @@ while true; do
 			cat /tmp/natpmpc_udp_output
 			echo "$outputDivider"
 			scriptWaitTime=10
+		# if mapping was successful then display port
 		else
-			mappedUdpPort=$(grep -E "$natPmpUdpPortMapRespRegex" /tmp/natpmpc_udp_output | awk '{print $4}')
+			mappedUdpPort=$(grep -E "$readNatPmpUdpPortMapRespRegex" /tmp/natpmpc_udp_output | awk '{print $4}')
 			echo "Forwarded port (UDP): $mappedUdpPort"
 		fi
 		echo 'Sending TCP port forward request...'
 		natpmpc -a 1 0 tcp 60 -g "$protonGwIp" &> /tmp/natpmpc_tcp_output
-		testTcpPortMap=$(grep -E "$natPmpRespSuccessRegex" /tmp/natpmpc_tcp_output)
+		# grab the read response/retry lines
+		testTcpPortMap=$(grep -E "$readNatPmpRespSuccessRegex" /tmp/natpmpc_tcp_output)
+		# if test failed then warn user and reduce wait time
 		if [[ -z "$testTcpPortMap" ]]
 		then
 			echo 'TCP port mapping failed. Command output:'
@@ -63,11 +75,13 @@ while true; do
 			cat /tmp/natpmpc_tcp_output
 			echo "$outputDivider"
 			scriptWaitTime=10
+		# if mapping was successful then display port
 		else
-			mappedTcpPort=$(grep -E "$natPmpTcpPortMapRespRegex" /tmp/natpmpc_tcp_output | awk '{print $4}')
+			mappedTcpPort=$(grep -E "$readNatPmpTcpPortMapRespRegex" /tmp/natpmpc_tcp_output | awk '{print $4}')
 			echo "Forwarded port (TCP): $mappedTcpPort"
 		fi
 	fi
+	# loop complete; delay next iteration by 10 or 45 seconds
 	echo "Waiting $scriptWaitTime seconds before next port forward request..."
 	echo "$outputDivider"
 	sleep $scriptWaitTime
