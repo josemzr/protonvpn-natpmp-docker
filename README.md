@@ -7,7 +7,7 @@ The purpose of the container is to spit out the port numbers to put in your othe
 I connect to ProtonVPN using WireGuard with my router. This configuration does not support port forwarding unless you have a loop running all the time to keep the port forwards open. I decided to create my own light weight container based on Alpine to run this natpmpc loop with some cleaned up console output.
 I designed this to be a "microservice" of sorts so it
 
-- is lightweight (thanks Alpine)
+- is lightweight and secure (based on Alpine Docker hardened image and uses nonroot user)
 - uses basic Linux tools (bash, curl, and libnatpmp)
 - relies on an external device/service to direct the traffic through VPN (1)
 
