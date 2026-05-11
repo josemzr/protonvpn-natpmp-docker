@@ -15,3 +15,5 @@ I designed this to be a "microservice" of sorts so it
 
 Example console output:
 <img alt="Console Output Example" src="https://raw.githubusercontent.com/blomstertj/protonvpn-natpmp-docker/refs/heads/main/console-output-example.png">
+Example console error output:
+<img alt="Console Output Example" src="https://raw.githubusercontent.com/blomstertj/protonvpn-natpmp-docker/refs/heads/main/console-output-error-example.png">
