@@ -16,7 +16,9 @@ I designed this to be a "microservice" of sorts so it
 I use Portainer to view the console logs but you can run "docker logs ContainerName" to view the console.
 <br>
 Example console output:
+<br>
 <img alt="Console Output Example" src="https://raw.githubusercontent.com/blomstertj/protonvpn-natpmp-docker/refs/heads/main/console-output-example.png">
 <br>
 Example console error output:
+<br>
 <img alt="Console Output Example" src="https://raw.githubusercontent.com/blomstertj/protonvpn-natpmp-docker/refs/heads/main/console-output-error-example.png">
