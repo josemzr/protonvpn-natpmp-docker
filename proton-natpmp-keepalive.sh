@@ -23,6 +23,15 @@ outputDivider='=================================================================
 
 while true; do
 	echo "$outputDivider"
+	#### initialize variables for this loop iteration
+	curlPublicIp=''
+	natPmpPublicIp=''
+	testNatPmpAllowed=''
+	testUdpPortMap=''
+	testTcpPortMap=''
+	echo '' > /tmp/natpmpc_allowed
+	echo '' > /tmp/natpmpc_udp_output
+	echo '' > /tmp/natpmpc_tcp_output
 	scriptWaitTime=45
 	#### get public IP from curl to Proton operated ip.me
 	# this should always match what natpmp returns
