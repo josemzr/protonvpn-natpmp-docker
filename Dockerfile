@@ -1,4 +1,4 @@
-# source image
+# source image - alpine hardened (dev means it has "apk" package manager)
 FROM dhi.io/alpine-base:3.23-dev
 
 LABEL build_version="2026.05.10"
@@ -15,11 +15,13 @@ RUN echo "**** cleanup ****" && \
 # copy bash script to container / dir
 COPY proton-natpmp-keepalive.sh /
 
+# copy entrypoint script to container / dir
 RUN echo "**** set ownership and permissions ****" && \
     chown nonroot:nonroot /proton-natpmp-keepalive.sh && \
     chmod +x /proton-natpmp-keepalive.sh
 
-# create startup command
+# set the container user to nonroot
 USER nonroot
+# create startup command
 ENTRYPOINT [ "/bin/bash" ]
 CMD [ "/proton-natpmp-keepalive.sh" ]
