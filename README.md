@@ -11,5 +11,14 @@ I designed this to be a "microservice" of sorts so it
 - uses basic Linux tools (bash, curl, and libnatpmp)
 - relies on an external device/service to direct the traffic through VPN (1)
 
-(1)
-Routers and firewalls can send traffic from specific IP addresses and/or MAC addresses through the VPN. That's why it has no VPN connectivity itself.
+(1) Routers and firewalls can send traffic from specific IP addresses and/or MAC addresses through the VPN. That's why it has no VPN connectivity itself.
+
+I use Portainer to view the console logs but you can run "docker logs ContainerName" to view the console.
+<br>
+Example console output:
+<br>
+<img alt="Console Output Example" src="https://raw.githubusercontent.com/blomstertj/protonvpn-natpmp-docker/refs/heads/main/console-output-example.png">
+<br>
+Example console error output:
+<br>
+<img alt="Console Output Example" src="https://raw.githubusercontent.com/blomstertj/protonvpn-natpmp-docker/refs/heads/main/console-output-error-example.png">
