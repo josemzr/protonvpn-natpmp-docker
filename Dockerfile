@@ -1,8 +1,11 @@
 # source image - alpine hardened (dev means it has "apk" package manager)
 FROM dhi.io/alpine-base:3.23-dev
 
-LABEL build_version="2026.05.10"
+LABEL build_version="2026.05.18"
 LABEL maintainer="blomstertj"
+
+ENV COMPACT_OUTPUT='false'
+ENV SKIP_IPME_CHECK='false'
 
 # install bash, curl, and libnatpmp
 RUN echo "**** install packages ****" && \

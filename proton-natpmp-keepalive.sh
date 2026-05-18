@@ -20,6 +20,22 @@ readNatPmpPortMapRespRegex='Mapped public port [0-9]+ protocol (UDP|TCP)'
 cmdOutputDivider='================================================'
 # divider between loop iterations
 outputDivider='================================================================================================'
+# verbose output
+checkCompactOutputEnv=$(printenv COMPACT_OUTPUT)
+if [[ $checkCompactOutputEnv == 'true' ]]
+then
+	verbose=false
+else
+	verbose=true
+fi
+# skip ip.me check
+checkSkipIpMeEnv=$(printenv SKIP_IPME_CHECK)
+if [[ $checkSkipIpMeEnv == 'true' ]]
+then
+	skipIpMeCheck=true
+else
+	skipIpMeCheck=false
+fi
 
 while true; do
 	echo "$outputDivider"
@@ -33,24 +49,29 @@ while true; do
 	echo '' > /tmp/natpmpc_udp_output
 	echo '' > /tmp/natpmpc_tcp_output
 	scriptWaitTime=45
+	
 	#### get public IP from curl to Proton operated ip.me
-	# this should always match what natpmp returns
-	# should only be different if we're not connected to VPN
-	curlPublicIp=$(curl --silent ip.me)
-	echo "Public IP (ip.me): $curlPublicIp"
-	echo "Target Gateway IP: $protonGwIp"
-
+	if [[ $skipIpMeCheck == false ]]
+	then
+		# this should always match what natpmp returns
+		# should only be different if we're not connected to VPN
+		curlPublicIp=$(curl --silent ip.me)
+		echo "Public IP (ip.me): $curlPublicIp"
+	fi
 	#### test if the gateway allows port forwarding
 	# this will take a long time if we're not connected to VPN
 	# or not on a P2P enabled server
-	echo 'Testing if the gateway allows port forwarding...'
+	if [[ $verbose == true ]]
+	then
+		echo "Target Gateway IP: $protonGwIp"
+		echo 'Testing if the gateway allows port forwarding...'
+	fi
 	# test if this server allows port forwarding
 	natpmpc -g "$protonGwIp" &> /tmp/natpmpc_allowed
 	# grab the read response/retry lines
 	testNatPmpAllowed=$(grep -E "$readNatPmpRespSuccessRegex" /tmp/natpmpc_allowed)
 	natPmpPublicIp=$(grep "$readNatPmpRespPublicIpStr" /tmp/natpmpc_allowed | cut -d ':' -f 2 | xargs)
 	echo "Public IP (natpmp): $natPmpPublicIp"
-
 	#### if the gateway allows port forwarding then request ports
 	# if not allowed or test error then warn user and reduce wait time
 	if [[ -z "$testNatPmpAllowed" ]]
@@ -63,7 +84,10 @@ while true; do
 	#### if allowed then request port fowarding for UDP/TCP for 60 second lifetime
 	else
 		#### UDP port forward request
-		echo 'Sending UDP port forward request...'
+		if [[ $verbose == true ]]
+		then
+			echo 'Sending UDP port forward request...'
+		fi
 		natpmpc -a 1 0 udp 60 -g "$protonGwIp" &> /tmp/natpmpc_udp_output
 		# grab the read response/retry lines
 		testUdpPortMap=$(grep -E "$readNatPmpRespSuccessRegex" /tmp/natpmpc_udp_output)
@@ -81,7 +105,10 @@ while true; do
 			echo "Forwarded port (UDP): $mappedUdpPort"
 		fi
 		#### TCP port forward request
-		echo 'Sending TCP port forward request...'
+		if [[ $verbose == true ]]
+		then
+			echo 'Sending TCP port forward request...'
+		fi
 		natpmpc -a 1 0 tcp 60 -g "$protonGwIp" &> /tmp/natpmpc_tcp_output
 		# grab the read response/retry lines
 		testTcpPortMap=$(grep -E "$readNatPmpRespSuccessRegex" /tmp/natpmpc_tcp_output)
@@ -101,7 +128,10 @@ while true; do
 	fi
 	#### loop complete
 	# delay next iteration by 10 or 45 seconds
-	echo "Waiting $scriptWaitTime seconds before next port forward request..."
+	if [[ $verbose == true ]]
+	then
+		echo "Waiting $scriptWaitTime seconds before next port forward request..."
+	fi
 	echo "$outputDivider"
 	sleep $scriptWaitTime
 done
