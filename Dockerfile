@@ -14,6 +14,10 @@ ENV TZ='UTC'
 RUN echo "**** install packages ****" && \
     apk add --no-cache bash curl libnatpmp tzdata
 
+RUN echo "**** set timezone ****" && \
+    cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
+    echo "${TZ}" > /etc/timezone
+
 # clean up container /tmp dir
 RUN echo "**** cleanup ****" && \
     rm -rf /tmp/*
