@@ -17,6 +17,8 @@ I connect to ProtonVPN using WireGuard with my router. This configuration does n
         - only outputs public IP(s) and forwarded ports on successful loop run
     - SKIP_IPME_CHECK
         - skips the public IP check to Proton operated https://ip.me
+    - TZ
+        - Set timezone for correct log timestamps
 
 <br>
 Example console output:
