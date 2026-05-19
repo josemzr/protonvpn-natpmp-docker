@@ -26,7 +26,8 @@ RUN echo "**** set ownership and permissions ****" && \
     chmod +x /proton-natpmp-keepalive.sh
 
 # set the container user to nonroot
-# this user is special to the hardened alpine image and has a UID of 65532, which is the same as the "nobody" user in many Linux distributions
+# this user is special to the hardened alpine image
+# and has a UID of 65532, which is the same as the "nobody" user in many Linux distributions
 USER nonroot
 
 # create startup command
