@@ -2,16 +2,17 @@
 FROM dhi.io/alpine-base:3.23-dev
 
 # set labels
-LABEL build_version='2026.05.18'
+LABEL build_version='2026.05.19'
 LABEL maintainer='blomstertj'
 
 # set environment variables
 ENV COMPACT_OUTPUT='false'
 ENV SKIP_IPME_CHECK='false'
+ENV TZ='UTC'
 
 # install bash, curl, and libnatpmp
 RUN echo "**** install packages ****" && \
-    apk add --no-cache bash curl libnatpmp
+    apk add --no-cache bash curl libnatpmp tzdata
 
 # clean up container /tmp dir
 RUN echo "**** cleanup ****" && \
