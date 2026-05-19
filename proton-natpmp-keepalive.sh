@@ -5,7 +5,15 @@
 # github.com/blomstertj
 #### Description
 # natpmpc port forward map request loop
+#
 # based on Proton's support article here: https://protonvpn.com/support/port-forwarding-manual-setup#linux
+# original command line from article: 
+# while true ; do date ; natpmpc -a 1 0 udp 60 -g 10.2.0.1 && natpmpc -a 1 0 tcp 60 -g 10.2.0.1 || { echo -e "ERROR with natpmpc command \a" ; break ; } ; sleep 45 ; done
+#
+# this script is an enhanced version of the original command line in the article:
+# pipes all natpmpc output to temp files and uses grep/awk to parse results and errors
+# echos to console the public IP from ip.me, the public IP from natpmp, and the mapped ports if successful
+# if any step fails then the script will output the command output for debugging and reduce loop wait time
 
 
 # the PMP gateway for ProtonVPN from the article
