@@ -44,7 +44,9 @@ while true; do
 	natPmpPublicIp=''
 	testNatPmpAllowed=''
 	testUdpPortMap=''
+	mappedUdpPort=''
 	testTcpPortMap=''
+	mappedTcpPort=''
 	echo '' > /tmp/natpmpc_allowed
 	echo '' > /tmp/natpmpc_udp_output
 	echo '' > /tmp/natpmpc_tcp_output
