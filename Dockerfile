@@ -18,9 +18,11 @@ RUN echo "**** set timezone ****" && \
     cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo "${TZ}" > /etc/timezone
 
-# clean up container /tmp dir
+# clean up container /tmp, /var/log, and /var/cache/apk
 RUN echo "**** cleanup ****" && \
-    rm -rf /tmp/*
+    rm -rf /tmp/* && \
+    rm -rf /var/log/* && \
+    rm -rf /var/cache/apk/*
 
 # copy bash script to container / dir
 COPY proton-natpmp-keepalive.sh /
