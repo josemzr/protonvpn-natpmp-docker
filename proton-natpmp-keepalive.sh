@@ -159,8 +159,9 @@ syncAmulePort() {
 	loginResponse=$(printf '%s' "$portSyncPassword" | jq -Rs '{password:.}' | \
 		curl "${curlArgs[@]}" --request POST \
 		--header 'Content-Type: application/json' \
+		--header 'Accept: application/jwt' \
 		--data-binary @- \
-		"$portSyncUrl/api/v0/auth/login?include_token=true") || return 1
+		"$portSyncUrl/api/v0/auth/login") || return 1
 	token=$(jq -er '.token' <<< "$loginResponse") || return 1
 	printf 'header = "Authorization: Bearer %s"\n' "$token" > "$bearerConfig"
 	chmod 600 "$bearerConfig"
