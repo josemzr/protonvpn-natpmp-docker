@@ -15,6 +15,7 @@
 # echos to console the public IP from ip.me, the public IP from natpmp, and the mapped ports if successful
 # if any step fails then the script will output the command output for debugging and reduce loop wait time
 
+umask 077
 
 # NAT-PMP settings. Distinct private ports identify independent mappings when
 # multiple instances share the same VPN connection.
@@ -113,7 +114,7 @@ syncQbittorrentPort() {
 	local -a curlArgs=(--silent --show-error --fail --compressed --connect-timeout 2 --max-time 5)
 
 	rm -f "$cookieFile"
-	trap 'rm -f "$cookieFile"' RETURN
+	trap 'rm -f "$cookieFile"; trap - RETURN' RETURN
 	if [[ -n "$portSyncUsername" || -n "$portSyncPassword" ]]
 	then
 		encodedUsername=$(printf '%s' "$portSyncUsername" | jq -sRr @uri) || return 1
@@ -154,7 +155,7 @@ syncAmulePort() {
 	local -a curlArgs=(--silent --show-error --fail --compressed --connect-timeout 2 --max-time 5)
 
 	rm -f "$bearerConfig"
-	trap 'rm -f "$bearerConfig"' RETURN
+	trap 'rm -f "$bearerConfig"; trap - RETURN' RETURN
 	loginResponse=$(printf '%s' "$portSyncPassword" | jq -Rs '{password:.}' | \
 		curl "${curlArgs[@]}" --request POST \
 		--header 'Content-Type: application/json' \
