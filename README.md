@@ -17,8 +17,46 @@ I connect to ProtonVPN using WireGuard with my router. This configuration does n
         - only outputs public IP(s) and forwarded ports on successful loop run
     - SKIP_IPME_CHECK
         - skips the public IP check to Proton operated https://ip.me
+    - NATPMP_GATEWAY
+        - NAT-PMP gateway address (default: `10.2.0.1`)
+    - NATPMP_PUBLIC_PORT
+        - requested public port; Proton normally allocates a random port (default: `1`)
+    - NATPMP_PRIVATE_PORT
+        - private mapping identifier (default: `0`)
+        - use a different non-zero value for each helper sharing one VPN connection
+    - NATPMP_LIFETIME
+        - mapping lifetime in seconds (default: `60`)
+    - NATPMP_REFRESH_INTERVAL
+        - successful renewal interval in seconds; must be lower than the lifetime (default: `45`)
+    - NATPMP_MAPPING_NAME
+        - descriptive name included in verbose logs (default: `default`)
     - TZ
         - Set timezone for correct log timestamps
+
+## Multiple mappings
+
+Run one helper per application and give every helper a unique private mapping
+identifier. For example:
+
+```yaml
+services:
+  natpmp-qbittorrent:
+    image: protonvpn-natpmp
+    environment:
+      NATPMP_MAPPING_NAME: qbittorrent
+      NATPMP_PRIVATE_PORT: 1
+
+  natpmp-amule:
+    image: protonvpn-natpmp
+    environment:
+      NATPMP_MAPPING_NAME: amule
+      NATPMP_PRIVATE_PORT: 2
+```
+
+Both helpers must be routed through the same NAT-PMP-enabled Proton VPN tunnel.
+Configure each application with the public port shown by its helper. Whether
+multiple simultaneous ports are granted is ultimately controlled by the VPN
+server and account policy.
 
 <br>
 Example console output:

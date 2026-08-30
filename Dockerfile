@@ -8,6 +8,12 @@ LABEL maintainer='blomstertj'
 # set environment variables
 ENV COMPACT_OUTPUT='false'
 ENV SKIP_IPME_CHECK='false'
+ENV NATPMP_GATEWAY='10.2.0.1'
+ENV NATPMP_PUBLIC_PORT='1'
+ENV NATPMP_PRIVATE_PORT='0'
+ENV NATPMP_LIFETIME='60'
+ENV NATPMP_REFRESH_INTERVAL='45'
+ENV NATPMP_MAPPING_NAME='default'
 ENV TZ='UTC'
 
 # install bash, curl, and libnatpmp

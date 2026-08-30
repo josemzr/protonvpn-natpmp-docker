@@ -10,14 +10,51 @@
 # original command line from article: 
 # while true ; do date ; natpmpc -a 1 0 udp 60 -g 10.2.0.1 && natpmpc -a 1 0 tcp 60 -g 10.2.0.1 || { echo -e "ERROR with natpmpc command \a" ; break ; } ; sleep 45 ; done
 #
-# this script is an enhanced version of the original command line in the article:
+# this script is an enhanced version of the original command line from the article:
 # pipes all natpmpc output to temp files and uses grep/awk to parse results and errors
 # echos to console the public IP from ip.me, the public IP from natpmp, and the mapped ports if successful
 # if any step fails then the script will output the command output for debugging and reduce loop wait time
 
 
-# the PMP gateway for ProtonVPN from the article
-protonGwIp='10.2.0.1'
+# NAT-PMP settings. Distinct private ports identify independent mappings when
+# multiple instances share the same VPN connection.
+protonGwIp="${NATPMP_GATEWAY:-10.2.0.1}"
+natPmpPublicPort="${NATPMP_PUBLIC_PORT:-1}"
+natPmpPrivatePort="${NATPMP_PRIVATE_PORT:-0}"
+natPmpLifetime="${NATPMP_LIFETIME:-60}"
+scriptSuccessWaitTime="${NATPMP_REFRESH_INTERVAL:-45}"
+mappingName="${NATPMP_MAPPING_NAME:-default}"
+
+validatePort() {
+	local name="$1"
+	local value="$2"
+	if [[ ! "$value" =~ ^[0-9]+$ ]] || (( value < 0 || value > 65535 ))
+	then
+		echo "$name must be an integer between 0 and 65535; got '$value'." >&2
+		exit 1
+	fi
+}
+
+validatePositiveInteger() {
+	local name="$1"
+	local value="$2"
+	if [[ ! "$value" =~ ^[0-9]+$ ]] || (( value < 1 ))
+	then
+		echo "$name must be a positive integer; got '$value'." >&2
+		exit 1
+	fi
+}
+
+validatePort 'NATPMP_PUBLIC_PORT' "$natPmpPublicPort"
+validatePort 'NATPMP_PRIVATE_PORT' "$natPmpPrivatePort"
+validatePositiveInteger 'NATPMP_LIFETIME' "$natPmpLifetime"
+validatePositiveInteger 'NATPMP_REFRESH_INTERVAL' "$scriptSuccessWaitTime"
+
+if (( scriptSuccessWaitTime >= natPmpLifetime ))
+then
+	echo 'NATPMP_REFRESH_INTERVAL must be lower than NATPMP_LIFETIME.' >&2
+	exit 1
+fi
 # the key name for the public IP returned by natpmpc
 readNatPmpRespPublicIpStr='Public IP'
 # if a NAT response returns a success then the output will have the following format
@@ -47,6 +84,10 @@ fi
 
 while true; do
 	echo "$outputDivider"
+	if [[ $verbose == true ]]
+	then
+		echo "Mapping: $mappingName (public request: $natPmpPublicPort, private: $natPmpPrivatePort)"
+	fi
 	#### initialize variables for this loop iteration
 	curlPublicIp=''
 	natPmpPublicIp=''
@@ -58,7 +99,7 @@ while true; do
 	echo '' > /tmp/natpmpc_allowed
 	echo '' > /tmp/natpmpc_udp_output
 	echo '' > /tmp/natpmpc_tcp_output
-	scriptWaitTime=45
+	scriptWaitTime="$scriptSuccessWaitTime"
 	
 	#### get public IP from curl to Proton operated ip.me
 	if [[ $skipIpMeCheck == false ]]
@@ -98,7 +139,7 @@ while true; do
 		then
 			echo 'Sending UDP port forward request...'
 		fi
-		natpmpc -a 1 0 udp 60 -g "$protonGwIp" &> /tmp/natpmpc_udp_output
+		natpmpc -a "$natPmpPublicPort" "$natPmpPrivatePort" udp "$natPmpLifetime" -g "$protonGwIp" &> /tmp/natpmpc_udp_output
 		# grab the read response/retry lines
 		testUdpPortMap=$(grep -E "$readNatPmpRespSuccessRegex" /tmp/natpmpc_udp_output)
 		# if test failed then warn user and reduce wait time
@@ -119,7 +160,7 @@ while true; do
 		then
 			echo 'Sending TCP port forward request...'
 		fi
-		natpmpc -a 1 0 tcp 60 -g "$protonGwIp" &> /tmp/natpmpc_tcp_output
+		natpmpc -a "$natPmpPublicPort" "$natPmpPrivatePort" tcp "$natPmpLifetime" -g "$protonGwIp" &> /tmp/natpmpc_tcp_output
 		# grab the read response/retry lines
 		testTcpPortMap=$(grep -E "$readNatPmpRespSuccessRegex" /tmp/natpmpc_tcp_output)
 		# if test failed then warn user and reduce wait time
