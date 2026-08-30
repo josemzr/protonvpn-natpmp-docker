@@ -31,6 +31,8 @@ portSyncUrl="${PORT_SYNC_URL%/}"
 portSyncUsername="${PORT_SYNC_USERNAME:-}"
 portSyncPassword="${PORT_SYNC_PASSWORD:-}"
 portSyncRestartProcess="${PORT_SYNC_RESTART_PROCESS:-}"
+portPublishPort="${PORT_PUBLISH_PORT:-}"
+portPublishDir='/tmp/natpmp-port'
 
 validatePort() {
 	local name="$1"
@@ -80,6 +82,26 @@ then
 	echo 'PORT_SYNC_PASSWORD is required for aMule synchronization.' >&2
 	exit 1
 fi
+
+if [[ -n "$portPublishPort" ]]
+then
+	validatePort 'PORT_PUBLISH_PORT' "$portPublishPort"
+	if (( portPublishPort == 0 ))
+	then
+		echo 'PORT_PUBLISH_PORT must be greater than zero.' >&2
+		exit 1
+	fi
+	mkdir -p "$portPublishDir"
+	printf 'unavailable\n' > "$portPublishDir/index.html"
+	httpd -p "0.0.0.0:$portPublishPort" -h "$portPublishDir"
+fi
+
+publishMappedPort() {
+	local port="$1"
+	[[ -z "$portPublishPort" ]] && return 0
+	printf '%s\n' "$port" > "$portPublishDir/index.html.tmp" && \
+		mv "$portPublishDir/index.html.tmp" "$portPublishDir/index.html"
+}
 
 restartSupervisedProcess() {
 	local processName="$1"
@@ -331,14 +353,9 @@ while true; do
 		fi
 		if [[ -n "$mappedUdpPort" && "$mappedUdpPort" == "$mappedTcpPort" ]]
 		then
-			applicationPort="$mappedTcpPort"
-			if (( natPmpPrivatePort > 0 ))
+			if ! syncApplicationPort "$mappedTcpPort" || ! publishMappedPort "$mappedTcpPort"
 			then
-				applicationPort="$natPmpPrivatePort"
-			fi
-			if ! syncApplicationPort "$applicationPort"
-			then
-				echo "Failed to synchronize port $applicationPort with $portSyncTarget; retrying next loop." >&2
+				echo "Failed to synchronize or publish port $mappedTcpPort; retrying next loop." >&2
 				scriptWaitTime=10
 			fi
 		elif [[ -n "$portSyncTarget" ]]

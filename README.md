@@ -38,6 +38,8 @@ I connect to ProtonVPN using WireGuard with my router. This configuration does n
         - optional qBittorrent Web API credentials; aMule requires `PORT_SYNC_PASSWORD`
     - PORT_SYNC_RESTART_PROCESS
         - optional process name to terminate after a port change; intended for a supervised process in a shared PID namespace
+    - PORT_PUBLISH_PORT
+        - optional internal HTTP port serving the current mapped public port as plain text
     - TZ
         - Set timezone for correct log timestamps
 
@@ -72,12 +74,12 @@ When both NAT-PMP protocols return the same public port, the helper can update a
 application automatically. It reads the current setting first and performs no
 mutation when the port is already correct.
 
-When `NATPMP_PRIVATE_PORT` is non-zero, the application is configured with that
-private port, not the allocated public port. Proton translates the public port
-to the private port before traffic enters the VPN tunnel. A router terminating
-the tunnel must therefore DNAT that fixed private port to the application. When
-the private port is `0`, the allocated public port is used for compatibility
-with Proton's original single-host example.
+The application is configured with the allocated public port because P2P
+protocols advertise their listening port to peers. Proton translates that port
+to `NATPMP_PRIVATE_PORT` before traffic enters the tunnel. With
+`PORT_PUBLISH_PORT` enabled, the helper serves the current public port to the
+router, which can keep a DNAT rule from the fixed private port to the dynamic
+application port without giving router credentials to the container.
 
 - qBittorrent uses `/api/v2/app/setPreferences` and applies `listen_port` live.
     Authentication may be omitted when the helper IP is in qBittorrent's Web UI

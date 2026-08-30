@@ -20,11 +20,12 @@ ENV PORT_SYNC_URL=''
 ENV PORT_SYNC_USERNAME=''
 ENV PORT_SYNC_PASSWORD=''
 ENV PORT_SYNC_RESTART_PROCESS=''
+ENV PORT_PUBLISH_PORT=''
 ENV TZ='UTC'
 
 # install bash, curl, and libnatpmp
 RUN echo "**** install packages ****" && \
-    apk add --no-cache bash curl jq libnatpmp tzdata
+    apk add --no-cache bash busybox-extras curl jq libnatpmp tzdata
 
 RUN echo "**** set timezone ****" && \
     cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
