@@ -30,6 +30,14 @@ I connect to ProtonVPN using WireGuard with my router. This configuration does n
         - successful renewal interval in seconds; must be lower than the lifetime (default: `45`)
     - NATPMP_MAPPING_NAME
         - descriptive name included in verbose logs (default: `default`)
+    - PORT_SYNC_TARGET
+        - application whose listening port is kept in sync: `qbittorrent`, `amule`, or empty (default)
+    - PORT_SYNC_URL
+        - base URL of the application API, for example `http://172.19.240.224:9745`
+    - PORT_SYNC_USERNAME / PORT_SYNC_PASSWORD
+        - optional qBittorrent Web API credentials; aMule requires `PORT_SYNC_PASSWORD`
+    - PORT_SYNC_RESTART_PROCESS
+        - optional process name to terminate after a port change; intended for a supervised process in a shared PID namespace
     - TZ
         - Set timezone for correct log timestamps
 
@@ -57,6 +65,23 @@ Both helpers must be routed through the same NAT-PMP-enabled Proton VPN tunnel.
 Configure each application with the public port shown by its helper. Whether
 multiple simultaneous ports are granted is ultimately controlled by the VPN
 server and account policy.
+
+## Automatic application port synchronization
+
+When both NAT-PMP protocols return the same public port, the helper can update an
+application automatically. It reads the current setting first and performs no
+mutation when the port is already correct.
+
+- qBittorrent uses `/api/v2/app/setPreferences` and applies `listen_port` live.
+    Authentication may be omitted when the helper IP is in qBittorrent's Web UI
+    authentication subnet whitelist.
+- aMule logs in to `amuleapi`, patches `connection.tcp_port` and
+    `connection.udp_port`, and verifies the response. Set
+    `PORT_SYNC_RESTART_PROCESS=amuled` only when the helper shares aMule's PID
+    namespace and runs with permission to signal that process; S6 then restarts it.
+
+Application API URLs should use HTTPS outside a trusted, isolated network. Plain
+HTTP is suitable only when both containers communicate over a private network.
 
 <br>
 Example console output:
