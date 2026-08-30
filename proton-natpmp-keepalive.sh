@@ -331,9 +331,14 @@ while true; do
 		fi
 		if [[ -n "$mappedUdpPort" && "$mappedUdpPort" == "$mappedTcpPort" ]]
 		then
-			if ! syncApplicationPort "$mappedTcpPort"
+			applicationPort="$mappedTcpPort"
+			if (( natPmpPrivatePort > 0 ))
 			then
-				echo "Failed to synchronize port $mappedTcpPort with $portSyncTarget; retrying next loop." >&2
+				applicationPort="$natPmpPrivatePort"
+			fi
+			if ! syncApplicationPort "$applicationPort"
+			then
+				echo "Failed to synchronize port $applicationPort with $portSyncTarget; retrying next loop." >&2
 				scriptWaitTime=10
 			fi
 		elif [[ -n "$portSyncTarget" ]]

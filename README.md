@@ -72,6 +72,13 @@ When both NAT-PMP protocols return the same public port, the helper can update a
 application automatically. It reads the current setting first and performs no
 mutation when the port is already correct.
 
+When `NATPMP_PRIVATE_PORT` is non-zero, the application is configured with that
+private port, not the allocated public port. Proton translates the public port
+to the private port before traffic enters the VPN tunnel. A router terminating
+the tunnel must therefore DNAT that fixed private port to the application. When
+the private port is `0`, the allocated public port is used for compatibility
+with Proton's original single-host example.
+
 - qBittorrent uses `/api/v2/app/setPreferences` and applies `listen_port` live.
     Authentication may be omitted when the helper IP is in qBittorrent's Web UI
     authentication subnet whitelist.
